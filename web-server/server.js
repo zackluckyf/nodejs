@@ -13,6 +13,7 @@
         res.send('About us');
     });
 
+    // __dirname is the directory location of the file in nodejs
     app.use(express.static(__dirname + '/../public'));
 
     const PORT = process.env.PORT || 3000;
