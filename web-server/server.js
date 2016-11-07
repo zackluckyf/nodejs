@@ -15,7 +15,7 @@
 
     app.use(express.static(__dirname + '/public'));
 
-    const PORT = 3000;
+    const PORT = process.env.PORT || 3000;
 
     app.listen(PORT, function() {
         console.log(`express server started on port: ${PORT}`);
