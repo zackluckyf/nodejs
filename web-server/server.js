@@ -13,7 +13,7 @@
         res.send('About us');
     });
 
-    app.use(express.static(__dirname + '/public'));
+    app.use(express.static(__dirname + '../public'));
 
     const PORT = process.env.PORT || 3000;
 
