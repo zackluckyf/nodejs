@@ -4,18 +4,8 @@
 
     var express = require('express');
     var app = express();
+    var middleware = require('./middleware');
 
-    let middleware = {
-        requireAuthentication: function(req, res, next) {
-            console.log('private route hit!');
-            next();
-        },
-        logger: function(req, res, next) {
-            let date = new Date().toString();
-            console.log(`Request: ${req.method} ${req.url} made on ${date}`);
-            next();
-        }
-    };
 
     app.use(middleware.logger);
 
