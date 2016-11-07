@@ -13,6 +13,10 @@
         id: 2,
         description: 'Go to marked',
         completed: false
+    }, {
+        id: 3,
+        description: 'Rep thetas',
+        completed: true
     }];
 
     app.get('/', function(req, res) {
@@ -23,9 +27,21 @@
         res.json(todos);
     });
 
-    // app.get('/todos/:id', function(req, res) {
-    //     res.json(todos.id);
-    // });
+    app.get('/todos/:id', function(req, res) {
+        // req.params.id needs to be parsed because it comes in as a string
+        var todoId = Number.parseInt(req.params.id);
+        var task;
+        for (let todo of todos) {
+            if (todo.id === todoId) {
+                task = todo;
+            }
+        }
+        if (task) {
+            res.json(task);
+        } else {
+            res.status(404).send();
+        }
+    });
 
     app.listen(PORT, function() {
         console.log(`express server started on port: ${PORT}`);
