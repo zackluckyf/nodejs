@@ -3,43 +3,67 @@
     'use strict';
 
     let express = require('express');
+    let bodyParser = require('body-parser');
+    let _ = require('underscore');
     let app = express();
     const PORT = process.env.PORT || 3000;
-    let todos = [{
-        id: 1,
-        description: 'Meet mom for lunch',
-        completed: false
-    }, {
-        id: 2,
-        description: 'Go to marked',
-        completed: false
-    }, {
-        id: 3,
-        description: 'Rep thetas',
-        completed: true
-    }];
+    let todos = [];
+    let todoNextId = 1;
+
+    app.use(bodyParser.json());
 
     app.get('/', function(req, res) {
         res.send('Todo API Root');
     });
 
+    // GET /todos
     app.get('/todos', function(req, res) {
         res.json(todos);
     });
 
+    // GET /todos/:id
     app.get('/todos/:id', function(req, res) {
-        // req.params.id needs to be parsed because it comes in as a string
         var todoId = Number.parseInt(req.params.id);
-        var task;
-        for (let todo of todos) {
-            if (todo.id === todoId) {
-                task = todo;
-            }
-        }
-        if (task) {
-            res.json(task);
+        var matchedTodo = _.findWhere(todos, {
+            id: todoId
+        });
+        if (matchedTodo) {
+            res.json(matchedTodo);
         } else {
             res.status(404).send();
+        }
+    });
+
+    // POST /todos
+    app.post('/todos', function(req, res) {
+        var body = _.pick(req.body, 'description', 'completed'); // Use _.pick to only pick description and completed
+
+        if (_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+            return res.status(400).send();
+        }
+
+        body.description = body.description.trim();
+        body.id = todoNextId++;
+
+        todos.push(body);
+
+        res.json(todos);
+    });
+
+    // DELETE /todos/:id
+    app.delete('/todos/:id', function(req, res) {
+        var todoId = parseInt(req.params.id, 10);
+        var matchedTodo = _.findWhere(todos, {
+            id: todoId
+        });
+
+        if (!matchedTodo) {
+            res.status(404).json({
+                "error": "no todo found with that id"
+            });
+        } else {
+            todos = _.without(todos, matchedTodo);
+            res.json(matchedTodo);
         }
     });
 
