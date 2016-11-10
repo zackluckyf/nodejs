@@ -5,6 +5,8 @@
     let express = require('express');
     let bodyParser = require('body-parser');
     let _ = require('underscore');
+    let db = require('./db.js');
+
     let app = express();
     const PORT = process.env.PORT || 3000;
     let todos = [];
@@ -57,16 +59,22 @@
     app.post('/todos', function(req, res) {
         var body = _.pick(req.body, 'description', 'completed'); // Use _.pick to only pick description and completed
 
-        if (_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-            return res.status(400).send();
-        }
+        db.todo.create(body).then(todo => {
+            res.json(todo.toJSON());
+        }, function(e) {
+            res.status(400).json(e);
+        });
 
-        body.description = body.description.trim();
-        body.id = todoNextId++;
-
-        todos.push(body);
-
-        res.json(todos);
+        // if (_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+        //     return res.status(400).send();
+        // }
+        //
+        // body.description = body.description.trim();
+        // body.id = todoNextId++;
+        //
+        // todos.push(body);
+        //
+        // res.json(todos);
     });
 
     // DELETE /todos/:id
@@ -117,8 +125,12 @@
         res.json(matchedTodo);
     });
 
-    app.listen(PORT, function() {
-        console.log(`express server started on port: ${PORT}`);
+    db.sequelize.sync().then(() => {
+        app.listen(PORT, function() {
+            console.log(`express server started on port: ${PORT}`);
+        });
     });
+
+
 
 })();
